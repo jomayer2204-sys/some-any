@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Some &amp; Any</title>
+<style>
+:root {
+  --ink:#1d1b3a; --muted:#5b5f86; --line:#d9ddf3; --bg:#e6f3fa; --card:#fff; --sun:#ffc93c;
+  --some:#e07b00; --some-t:#fde8cc;
+  --any:#2563c9;  --any-t:#dbe7fb;
+  --pos:#1f9d55; --pos-t:#d9f2e2;
+  --neg:#d64545; --neg-t:#fde3e3;
+  --que:#2563c9; --que-t:#dbe7fb;
+  --off:#8e44ad; --off-t:#eedcf6;
+  --ok:#1f9d55; --bad:#d64545;
+  --font:"Avenir Next","Nunito","Trebuchet MS","Segoe UI",system-ui,-apple-system,sans-serif;
+  color-scheme: light;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:18px;line-height:1.45;font-weight:600;
+  padding:14px max(14px,env(safe-area-inset-right)) 120px max(14px,env(safe-area-inset-left));min-height:100vh;-webkit-text-size-adjust:100%}
+button{font:inherit;color:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
+:focus-visible{outline:4px solid var(--sun);outline-offset:2px}
+h1,h2,h3{margin:0;line-height:1.12;font-weight:800;text-wrap:balance}
+p{margin:0}
+.wrap{max-width:900px;margin:0 auto;display:grid;gap:18px}
+.card{background:var(--card);border-radius:22px;padding:22px;box-shadow:0 5px 0 var(--line)}
+
+/* Header */
+.hero{background:linear-gradient(135deg,#4f46e5,#2563c9 60%,#0e8f9a);color:#fff;border-radius:26px;padding:26px 24px;box-shadow:0 6px 0 rgba(30,30,90,.25);position:relative;overflow:hidden}
+.hero h1{font-size:clamp(34px,7vw,56px);letter-spacing:-.5px}
+.hero h1 .s{color:var(--sun)} .hero h1 .a{color:#a8d4ff}
+.hero p{margin-top:8px;opacity:.95;font-size:19px}
+.hero .bubbles{position:absolute;right:14px;top:10px;font-size:46px;opacity:.9;letter-spacing:6px}
+
+/* Step heading */
+.step{display:flex;align-items:center;gap:12px;margin-bottom:6px}
+.num{flex:none;width:46px;height:46px;border-radius:50%;background:var(--sun);color:var(--ink);display:grid;place-items:center;font-weight:800;font-size:24px;box-shadow:0 3px 0 rgba(0,0,0,.15)}
+.step h2{font-size:clamp(22px,4vw,28px)}
+.task{color:var(--muted);margin-bottom:14px}
+
+/* Word tokens */
+.bank{position:sticky;top:8px;z-index:20;background:#fff;border-radius:20px;padding:12px 14px;box-shadow:0 5px 0 var(--line),0 10px 22px rgba(30,30,90,.12);display:flex;gap:12px;align-items:center;flex-wrap:wrap;border:3px solid var(--line)}
+.bank .lbl{color:var(--muted);font-size:15px;flex:1 1 150px}
+.tok{border:0;border-radius:14px;padding:8px 22px;font-weight:800;font-size:22px;min-height:48px;touch-action:none;user-select:none;-webkit-user-select:none;box-shadow:0 4px 0 rgba(0,0,0,.2);transition:transform .1s}
+.tok.some{background:var(--some);color:#fff} .tok.any{background:var(--any);color:#fff}
+.tok:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.2)}
+.tok.sel{outline:4px solid var(--sun);outline-offset:3px;transform:translateY(-3px) scale(1.06)}
+.tok[draggable=true]{cursor:grab}
+
+/* Gaps */
+.gap{display:inline-flex;align-items:center;justify-content:center;min-width:96px;height:44px;padding:0 14px;margin:0 3px;vertical-align:middle;border-radius:12px;border:3px dashed #9aa3d6;background:#f4f6ff;color:var(--muted);font-weight:800;font-size:20px;cursor:pointer;transition:background .15s,border-color .15s,transform .15s}
+.gap:hover,.gap.over{border-color:var(--sc,#4f46e5);background:#e9ecff;transform:scale(1.04)}
+.gap.armed{animation:pulse 1.1s infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 6px rgba(255,201,60,.55)}}
+.gap.some{border-style:solid;border-color:var(--some);background:var(--some-t);color:var(--some)}
+.gap.any{border-style:solid;border-color:var(--any);background:var(--any-t);color:var(--any)}
+.gap.right{border-style:solid;border-color:var(--ok);background:var(--pos-t);color:var(--ok);cursor:default}
+.gap.wrong{border-style:solid;border-color:var(--bad);background:var(--neg-t);color:var(--bad);animation:shake .4s}
+@keyframes shake{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+
+/* Rule box */
+.rules{display:grid;gap:12px}
+.rule{display:grid;grid-template-columns:62px 1fr;gap:14px;align-items:center;border-radius:18px;padding:12px 14px;background:var(--t);border-left:8px solid var(--c)}
+.rule .ic{width:54px;height:54px;border-radius:16px;background:var(--c);color:#fff;display:grid;place-items:center;font-size:30px;font-weight:800}
+.rule .lead{font-weight:800;font-size:19px}
+.rule .ex{margin-top:4px;color:var(--ink);font-weight:600}
+.rule .ex b{border-radius:8px;padding:1px 8px;color:#fff}
+.rule .ex b.some{background:var(--some)} .rule .ex b.any{background:var(--any)}
+.rule.pos{--c:var(--pos);--t:var(--pos-t)} .rule.neg{--c:var(--neg);--t:var(--neg-t)}
+.rule.que{--c:var(--que);--t:var(--que-t)} .rule.off{--c:var(--off);--t:var(--off-t)}
+.tip{margin-top:14px;background:#fff8e1;border:3px solid var(--sun);border-radius:18px;padding:14px 16px}
+.tip b.some{color:var(--some)} .tip b.any{color:var(--any)}
+
+/* Sentences */
+.sent{display:grid;grid-template-columns:42px 1fr;gap:12px;align-items:center;padding:12px 4px;border-bottom:2px dashed var(--line)}
+.sent:last-child{border-bottom:0}
+.sent .n{width:38px;height:38px;border-radius:50%;background:var(--line);display:grid;place-items:center;font-weight:800;color:var(--muted)}
+.sent .t{font-size:20px;line-height:2}
+.sent .hint{display:block;font-size:15px;line-height:1.35;color:var(--bad);font-weight:700;margin-top:2px}
+.sent.done .n{background:var(--ok);color:#fff}
+
+/* Footer bar */
+.bar{position:fixed;left:0;right:0;bottom:0;z-index:30;background:#fff;border-top:3px solid var(--line);padding:10px max(14px,env(safe-area-inset-right)) calc(10px + env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left))}
+.bar .in{max-width:900px;margin:0 auto;display:flex;gap:12px;align-items:center}
+.prog{flex:1;min-width:0}
+.prog .txt{font-size:15px;color:var(--muted);font-weight:800}
+.track{height:14px;border-radius:99px;background:var(--line);overflow:hidden;margin-top:3px}
+.fill{height:100%;width:0;background:linear-gradient(90deg,#1f9d55,#7bd88f);border-radius:99px;transition:width .4s}
+.btn{border:0;border-radius:16px;padding:10px 22px;font-weight:800;font-size:19px;min-height:52px;background:#4f46e5;color:#fff;box-shadow:0 5px 0 rgba(0,0,0,.22);transition:transform .1s;white-space:nowrap}
+.btn:active{transform:translateY(3px);box-shadow:0 2px 0 rgba(0,0,0,.22)}
+.btn.ghost{background:#fff;color:var(--ink);border:3px solid var(--line);box-shadow:none}
+
+/* Result */
+.result{display:none;text-align:center;background:linear-gradient(135deg,#fff8e1,#fde8cc);border:4px solid var(--sun)}
+.result.show{display:block;animation:pop .5s}
+@keyframes pop{0%{transform:scale(.85);opacity:0}100%{transform:scale(1);opacity:1}}
+.result .stars{font-size:48px;letter-spacing:6px}
+.result h2{margin:6px 0}
+.toast{position:fixed;left:50%;bottom:92px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;padding:10px 18px;border-radius:14px;font-weight:800;opacity:0;transition:.25s;pointer-events:none;z-index:40;max-width:90vw;text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%)}
+@media (max-width:560px){
+  body{font-size:17px}.card{padding:16px}.hero .bubbles{display:none}
+  .rule{grid-template-columns:48px 1fr}.rule .ic{width:44px;height:44px;font-size:24px}
+  .sent .t{font-size:18px}.btn{padding:8px 14px;font-size:17px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hero">
+    <div class="bubbles" aria-hidden="true">🍎🥛🍪</div>
+    <h1><span class="s">SOME</span> &amp; <span class="a">ANY</span></h1>
+    <p>Drag the words into the gaps – or tap a word first, then tap a gap.</p>
+  </header>
+
+  <!-- Wortspeicher -->
+  <div class="bank" role="group" aria-label="Words">
+    <span class="lbl">👉 Pick a word:</span>
+    <button class="tok some" data-w="some" draggable="true">some</button>
+    <button class="tok any" data-w="any" draggable="true">any</button>
+  </div>
+
+  <!-- 1 Regel -->
+  <section class="card" id="part1">
+    <div class="step"><div class="num">1</div><h2>Complete the rules</h2></div>
+    <p class="task">When do we use <b style="color:var(--some)">some</b> and when <b style="color:var(--any)">any</b>? Fill the gaps.</p>
+    <div class="rules">
+      <div class="rule pos"><div class="ic">✔</div><div>
+        <div class="lead">Positive sentences: <span class="gap" data-a="some" data-g="rule"></span></div>
+        <div class="ex">🍎🍎🍎 I have <b class="some">some</b> friends.</div></div></div>
+      <div class="rule neg"><div class="ic">✘</div><div>
+        <div class="lead">Negative sentences: <span class="gap" data-a="any" data-g="rule"></span></div>
+        <div class="ex">🍌 I don't have <b class="any">any</b> friends.</div></div></div>
+      <div class="rule que"><div class="ic">?</div><div>
+        <div class="lead">Questions: <span class="gap" data-a="any" data-g="rule"></span></div>
+        <div class="ex">🍪🍪 Do you have <b class="any">any</b> friends?</div></div></div>
+      <div class="rule off"><div class="ic">!</div><div>
+        <div class="lead">Offers and requests: <span class="gap" data-a="some" data-g="rule"></span></div>
+        <div class="ex">🥛 Would you like <b class="some">some</b> tea?</div></div></div>
+    </div>
+    <div class="tip">💡 We use <b class="some">some</b> and <b class="any">any</b> with <b>plural nouns</b> (apples, cookies) and <b>uncountable nouns</b> (milk, water, bread).<br>
+      Meaning: <b class="some">some</b> = einige, ein paar, etwas &nbsp;·&nbsp; <b class="any">any</b> = keine, irgendwelche</div>
+  </section>
+
+  <!-- 2 Sätze -->
+  <section class="card" id="part2">
+    <div class="step"><div class="num">2</div><h2>Complete the sentences</h2></div>
+    <p class="task">Which word fits? Watch out for offers and requests!</p>
+    <div id="sents"></div>
+  </section>
+
+  <section class="card result" id="result" aria-live="polite">
+    <div class="stars">⭐⭐⭐</div>
+    <h2>Great job!</h2>
+    <p>You got everything right. Now you are a some &amp; any pro! 🎉</p>
+  </section>
+</div>
+
+<div class="bar"><div class="in">
+  <div class="prog"><div class="txt" id="ptxt">0 / 0 gaps filled</div><div class="track"><div class="fill" id="fill"></div></div></div>
+  <button class="btn ghost" id="reset">↺ Restart</button>
+  <button class="btn" id="check">Check ✓</button>
+</div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  /* Aufgaben: [Satz mit ___, Lösung, Hinweis bei Fehler] */
+  var S = [
+    ["There are ___ apples in the bag.","some","Positive sentence → some"],
+    ["I haven't got ___ brothers or sisters.","any","Negative sentence (haven't) → any"],
+    ["Would you like ___ tea?","some","This is an offer → some, even in a question"],
+    ["Is there ___ cheese in the fridge?","any","Normal question → any"],
+    ["She doesn't have ___ pets.","any","Negative sentence (doesn't) → any"],
+    ["Mum bought ___ bread this morning.","some","Positive sentence → some"],
+    ["Look! There are ___ cars in the street.","some","Positive sentence → some"],
+    ["We haven't got ___ eggs.","any","Negative sentence (haven't) → any"],
+    ["Can I have ___ water, please?","some","This is a request → some, even in a question"],
+    ["Have they got ___ children?","any","Normal question → any"],
+    ["There aren't ___ books on the table.","any","Negative sentence (aren't) → any"],
+    ["Would you like ___ biscuits?","some","This is an offer → some, even in a question"]
+  ];
+  var box = document.getElementById("sents");
+  S.forEach(function(s,i){
+    var parts = s[0].split("___");
+    var d = document.createElement("div"); d.className="sent";
+    d.innerHTML = '<div class="n">'+(i+1)+'</div><div class="t">'+parts[0]+
+      '<span class="gap" data-a="'+s[1]+'" data-g="sent"></span>'+parts[1]+'<span class="hint" hidden></span></div>';
+    d.querySelector(".hint").dataset.t = s[2];
+    box.appendChild(d);
+  });
+
+  var gaps = [].slice.call(document.querySelectorAll(".gap"));
+  var toks = [].slice.call(document.querySelectorAll(".tok"));
+  var sel = null;
+  var $ = function(id){return document.getElementById(id)};
+
+  function toast(t){var e=$("toast");e.textContent=t;e.classList.add("show");clearTimeout(toast.t);toast.t=setTimeout(function(){e.classList.remove("show")},2200)}
+
+  function setSel(t){
+    sel = (sel===t)? null : t;
+    toks.forEach(function(k){k.classList.toggle("sel",k===sel)});
+    gaps.forEach(function(g){g.classList.toggle("armed",!!sel && !g.classList.contains("right"))});
+  }
+  function fill(g,w){
+    if(g.classList.contains("right")) return;
+    g.dataset.w = w; g.textContent = w;
+    g.classList.remove("some","any","wrong"); g.classList.add(w);
+    var h = g.parentNode.querySelector(".hint"); if(h) h.hidden = true;
+    update();
+  }
+  function update(){
+    var f = gaps.filter(function(g){return g.dataset.w}).length;
+    $("ptxt").textContent = f+" / "+gaps.length+" gaps filled";
+    $("fill").style.width = (100*f/gaps.length)+"%";
+  }
+
+  toks.forEach(function(t){
+    t.addEventListener("click",function(){setSel(t)});
+    t.addEventListener("dragstart",function(e){e.dataTransfer.setData("text/plain",t.dataset.w);e.dataTransfer.effectAllowed="copy"});
+  });
+  gaps.forEach(function(g){
+    g.tabIndex = 0; g.setAttribute("role","button");
+    g.addEventListener("click",function(){
+      if(sel) fill(g,sel.dataset.w);
+      else if(g.dataset.w && !g.classList.contains("right")){ // Wort wieder entfernen
+        delete g.dataset.w; g.textContent=""; g.classList.remove("some","any","wrong"); update();
+      }
+    });
+    g.addEventListener("keydown",function(e){ if(e.key==="Enter"||e.key===" "){e.preventDefault();g.click()} });
+    g.addEventListener("dragover",function(e){e.preventDefault();g.classList.add("over")});
+    g.addEventListener("dragleave",function(){g.classList.remove("over")});
+    g.addEventListener("drop",function(e){e.preventDefault();g.classList.remove("over");var w=e.dataTransfer.getData("text/plain");if(w==="some"||w==="any")fill(g,w)});
+  });
+  // Antippen auf Touch-Geräten: Auswahl bleibt, damit mehrere Lücken nacheinander gefüllt werden können
+
+  $("check").addEventListener("click",function(){
+    var empty = gaps.filter(function(g){return !g.dataset.w}).length;
+    var wrong = 0;
+    gaps.forEach(function(g){
+      if(!g.dataset.w || g.classList.contains("right")) return;
+      var h = g.parentNode.querySelector(".hint");
+      if(g.dataset.w===g.dataset.a){
+        g.classList.remove("some","any","wrong"); g.classList.add("right");
+        if(h) h.hidden = true;
+        var s=g.closest(".sent"); if(s) s.classList.add("done");
+      } else {
+        wrong++; g.classList.remove("wrong"); void g.offsetWidth; g.classList.add("wrong");
+        if(h){h.textContent="💡 "+h.dataset.t;h.hidden=false}
+      }
+    });
+    if(sel) setSel(sel);
+    var right = gaps.filter(function(g){return g.classList.contains("right")}).length;
+    if(right===gaps.length){
+      $("result").classList.add("show"); $("result").scrollIntoView({behavior:"smooth",block:"center"});
+    } else if(wrong){ toast("❌ "+wrong+" not right yet – read the hint and try again!") }
+    else if(empty){ toast("✅ All filled gaps are right! "+empty+" to go.") }
+  });
+  $("reset").addEventListener("click",function(){
+    gaps.forEach(function(g){delete g.dataset.w;g.textContent="";g.className="gap"});
+    document.querySelectorAll(".hint").forEach(function(h){h.hidden=true});
+    document.querySelectorAll(".sent").forEach(function(s){s.classList.remove("done")});
+    $("result").classList.remove("show"); sel=null; toks.forEach(function(k){k.classList.remove("sel")});
+    update(); window.scrollTo({top:0,behavior:"smooth"});
+  });
+  update();
+})();
+</script>
+</body>
+</html>
